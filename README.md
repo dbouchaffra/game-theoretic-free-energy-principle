@@ -131,11 +131,12 @@ bibtex
   title  = {Game-Theoretic Free Energy Principle: Simulation Code and Data},
   year   = {2026},
   publisher = {GitHub},
-  url    = {https://github.com/yourlab/gt-fep}
+  url    = {https://github.com/dbouchaffra/game-theoretic-energy-principle}
 }
 Contact
 For questions, issues, or requests, please open an issue on this repository or contact the corresponding author:
 Djamel Bouchaffra – djamel.bouchaffra@uvsq.fr
+DAVID Lab, University of Paris-Saclay, UVSQ, 78035 Versailles, France.
 
 Acknowledgements
 This work was supported by [funding agencies]. We thank [names] for helpful discussions.
