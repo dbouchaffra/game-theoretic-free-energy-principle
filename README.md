@@ -138,5 +138,3 @@ For questions, issues, or requests, please open an issue on this repository or c
 Djamel Bouchaffra – djamel.bouchaffra@uvsq.fr
 DAVID Lab, University of Paris-Saclay, UVSQ, 78035 Versailles, France.
 
-Acknowledgements
-This work was supported by [funding agencies]. We thank [names] for helpful discussions.
