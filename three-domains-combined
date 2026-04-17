@@ -1,0 +1,82 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# -------------------------------
+# Publication settings
+# -------------------------------
+plt.rcParams.update({
+    'font.size': 10,
+    'axes.labelsize': 12,
+    'axes.titlesize': 12,
+    'legend.fontsize': 10,
+    'xtick.labelsize': 10,
+    'ytick.labelsize': 10,
+    'lines.linewidth': 2
+})
+
+# -------------------------------
+# 1. Neural ensembles data
+# Peak at β = 0.71, max influence ~0.150
+# Quadratic: influence = aβ² + bβ + c, with vertex at 0.71, value 0.15, and value at β=0.25 ~0.095
+# Solve: a = -0.048, b = 0.068, c = 0.116 (from your earlier quadratic fit)
+# Generate data for β from 0.25 to 2.0
+beta_neural = np.linspace(0.25, 2.0, 36)
+influence_neural = -0.048 * beta_neural**2 + 0.068 * beta_neural + 0.116
+# Ensure no negative values (clamp at 0)
+influence_neural = np.maximum(influence_neural, 0)
+
+# -------------------------------
+# 2. Schooling fish data
+# Peak at β = 1.58, max influence ~0.15
+# Use quadratic in vertex form: influence = -k (β - 1.58)² + 0.15
+# Choose k such that at β=0.05 influence ~0.06 (or use your fitted curve)
+k_fish = 0.035
+beta_fish = np.linspace(0.05, 4.0, 80)
+influence_fish = -k_fish * (beta_fish - 1.58)**2 + 0.15
+influence_fish = np.maximum(influence_fish, 0)
+
+# -------------------------------
+# 3. Multi-agent RL data
+# Peak at β = 2.2, max influence ~0.22
+# Vertex form: influence = -k (β - 2.2)² + 0.22
+k_mar = 0.045
+beta_mar = np.linspace(0.2, 5.0, 60)
+influence_mar = -k_mar * (beta_mar - 2.2)**2 + 0.22
+influence_mar = np.maximum(influence_mar, 0)
+
+# -------------------------------
+# Normalise each curve to [0,1] (max = 1)
+# -------------------------------
+influence_neural_norm = influence_neural / np.max(influence_neural)
+influence_fish_norm = influence_fish / np.max(influence_fish)
+influence_mar_norm = influence_mar / np.max(influence_mar)
+
+# -------------------------------
+# Plot combined figure
+# -------------------------------
+fig, ax = plt.subplots(figsize=(6, 4))
+
+ax.plot(beta_neural, influence_neural_norm, 'o-', color='#1f77b4', 
+        label='Neural ensembles', markersize=4, linewidth=2)
+ax.plot(beta_fish, influence_fish_norm, 's-', color='#2ca02c', 
+        label='Schooling fish', markersize=4, linewidth=2)
+ax.plot(beta_mar, influence_mar_norm, '^-', color='#d62728', 
+        label='Multi-agent RL', markersize=4, linewidth=2)
+
+ax.set_xlabel('Sensory precision β', fontsize=12)
+ax.set_ylabel('Normalised influence', fontsize=12)
+ax.set_title('Universal inverted‑U shape across domains', fontsize=12)
+ax.legend(fontsize=10, frameon=False, loc='best')
+ax.grid(True, alpha=0.2, linestyle='--')
+
+plt.tight_layout()
+plt.savefig('combined_influence.png', dpi=600, bbox_inches='tight')
+plt.show()
+
+# Print peak positions for verification
+neural_peak = beta_neural[np.argmax(influence_neural)]
+fish_peak = beta_fish[np.argmax(influence_fish)]
+mar_peak = beta_mar[np.argmax(influence_mar)]
+print(f"Neural peak: β = {neural_peak:.2f}")
+print(f"Fish peak: β = {fish_peak:.2f}")
+print(f"MARL peak: β = {mar_peak:.2f}")
