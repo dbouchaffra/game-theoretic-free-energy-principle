@@ -1,6 +1,6 @@
 # game-theoretic-free-energy-principle
 Simulation code and data for the Game-Theoretic Free Energy Principle: neural ensembles, schooling fish, and multi-agent RL. Reproduces all figures from the Nature submission (2026).
-This repository contains the complete simulation code and generated data for the paper:
+This repository contains the complete simulation code and generated data for the paper: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19629592.svg)](https://doi.org/10.5281/zenodo.19629592)
 
 > **"A Variational Principle Unifying Bayesian Inference, Thermodynamics, and Game‑Theoretic Equilibrium in Collective Systems"**  
 > *Submitted to Nature (2026)*  
