@@ -133,6 +133,7 @@ bibtex
   publisher = {GitHub},
   url    = {https://github.com/dbouchaffra/game-theoretic-energy-principle}
 }
+
 Contact
 For questions, issues, or requests, please open an issue on this repository or contact the corresponding author:
 Djamel Bouchaffra – djamel.bouchaffra@uvsq.fr
