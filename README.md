@@ -7,24 +7,24 @@ This repository contains the complete simulation code and generated data for the
 > Djamel Bouchaffra, Faycal Ykhlef, Mustapha Lebbah, Hanane Azzag
 
 The code reproduces all main results of the three validation domains:
-- **Neural ensembles** – spiking recurrent network performing a working‑memory task.
-- **Schooling fish** – agent‑based model of golden shiners with visual acuity control.
-- **Multi‑agent reinforcement learning** – cooperative navigation using MADDPG.
+- **Neural ensemble**  – analytic Gaussian coalition model (Shapley value derived from coalition free energies).
+- **Schooling fish**   - analytic Gaussian coalition model (Shapley value derived from coalition free energies)
+- **Multi-agent RL**   – analytic Gaussian coalition model (counterfactual Shapley values)
 
 All simulations implement the **Game‑Theoretic Free Energy Principle** introduced in the paper, which bridges Bayesian inference, statistical physics, and game theory.
 
 - **game-theoretic-free-energy-principle**
   - **neural_ensemble/
-    - simulate_neural.py` – Main simulation (LIF network, coalition free energy, Shapley)
-    - plot_figure.py` – Generates Fig. 2a (neural influence vs. precision)
+    - true-neural-ensemble-simulation.py` – Main simulation (LIF network, coalition free energy, Shapley)
+    - plot_figure.py` – Generates Fig.1. (neural influence vs. precision)
     - data/` – Pre‑computed influence values (CSV)
   - **schooling_fish/**
-    - simulate_fish.py` – Agent‑based fish school with precision‑dependent alignment
-    - plot_figure.py` – Generates Fig. 2b (fish influence vs. precision)
+    - true-school-fish-simulation.py` – Agent‑based fish school with precision‑dependent alignment
+    - plot_figure.py` – Generates Fig.2. (fish influence vs. precision)
     - data/` – Pre‑computed influence values (CSV)
   - **marl/**
-    - train_marl.py` – MADDPG training and counterfactual Shapley evaluation
-    - plot_figure.py` – Generates Fig. 2c (MARL influence vs. precision)
+    - true-marl-simulation.py` – Implements the Game‑Theoretic Free Energy Principle (coalition free energies, Harsanyi dividends, Shapley value) for the multi‑agent RL domain.
+    - plot_figure.py` – Generates Fig.3. (MARL influence vs. precision)
     - data/` – Pre‑computed influence values (CSV)
   - **combined_figure/**
     - plot_combined.py` – Generates Fig. 2d (normalised overlay)
