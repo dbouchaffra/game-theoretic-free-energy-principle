@@ -59,7 +59,7 @@ sklearn (quadratic fitting, normalisation)
 Reproducing the figures
 All figures from the paper can be regenerated without re‑running the simulations by using the pre‑computed data in the data/ subfolders.
 
-Neural ensembles (Fig. 2a)
+Neural ensembles (Fig.1.)
 bash
 cd neural_ensemble
 python plot_figure.py
@@ -67,11 +67,11 @@ Schooling fish (Fig. 2b)
 bash
 cd schooling_fish
 python plot_figure.py
-Multi‑agent RL (Fig. 2c)
+Multi‑agent RL (Fig.2.)
 bash
 cd marl
 python plot_figure.py
-Combined overlay (Fig. 2d)
+Combined overlay (Fig.3.)
 bash
 cd combined_figure
 python plot_figure.py
@@ -83,17 +83,17 @@ If you wish to verify or modify the simulations, you can run the main scripts. W
 Neural ensemble
 bash
 cd neural_ensemble
-python simulate_neural.py --beta_min 0.25 --beta_max 2.0 --steps 35 --runs 50
+python true-neural-ensemble-simulation.py --beta_min 0.25 --beta_max 2.0 --steps 35 --runs 50
 All parameters have default values matching the paper. Use --help to see all options.
 
 Schooling fish
 bash
 cd schooling_fish
-python simulate_fish.py --beta_min 0.05 --beta_max 4.0 --steps 18 --runs 80
+python true-school-fish-simulation.py --beta_min 0.05 --beta_max 4.0 --steps 18 --runs 80
 Multi‑agent RL (MADDPG)
 bash
 cd marl
-python train_marl.py --beta_min 0.2 --beta_max 5.0 --steps 15 --runs 100
+python true-marl-simulation.py --beta_min 0.2 --beta_max 5.0 --steps 15 --runs 100
 This script trains independent policies for each precision value and computes counterfactual Shapley values.
 
 All scripts use a fixed random seed (42) to ensure reproducibility.
