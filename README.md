@@ -14,32 +14,32 @@ The code reproduces all main results of the three validation domains:
 All simulations implement the **Game‑Theoretic Free Energy Principle** introduced in the paper, which bridges Bayesian inference, statistical physics, and game theory.
 
 - **game-theoretic-free-energy-principle**
-  - **neural_ensemble/**
-    - `simulate_neural.py` – Main simulation (LIF network, coalition free energy, Shapley)
-    - `plot_figure.py` – Generates Fig. 2a (neural influence vs. precision)
-    - `data/` – Pre‑computed influence values (CSV)
+  - **neural_ensemble/
+    - simulate_neural.py` – Main simulation (LIF network, coalition free energy, Shapley)
+    - plot_figure.py` – Generates Fig. 2a (neural influence vs. precision)
+    - data/` – Pre‑computed influence values (CSV)
   - **schooling_fish/**
-    - `simulate_fish.py` – Agent‑based fish school with precision‑dependent alignment
-    - `plot_figure.py` – Generates Fig. 2b (fish influence vs. precision)
-    - `data/` – Pre‑computed influence values (CSV)
+    - simulate_fish.py` – Agent‑based fish school with precision‑dependent alignment
+    - plot_figure.py` – Generates Fig. 2b (fish influence vs. precision)
+    - data/` – Pre‑computed influence values (CSV)
   - **marl/**
-    - `train_marl.py` – MADDPG training and counterfactual Shapley evaluation
-    - `plot_figure.py` – Generates Fig. 2c (MARL influence vs. precision)
-    - `data/` – Pre‑computed influence values (CSV)
+    - train_marl.py` – MADDPG training and counterfactual Shapley evaluation
+    - plot_figure.py` – Generates Fig. 2c (MARL influence vs. precision)
+    - data/` – Pre‑computed influence values (CSV)
   - **combined_figure/**
-    - `plot_combined.py` – Generates Fig. 2d (normalised overlay)
-  - `requirements.txt` – Python dependencies (pip)
-  - `environment.yml` – Conda environment (optional)
-  - `LICENSE` – MIT License
-  - `README.md` – This file
+    - plot_combined.py` – Generates Fig. 2d (normalised overlay)
+  - requirements.txt` – Python dependencies (pip)
+  - environment.yml` – Conda environment (optional)
+  - LICENSE` – MIT License
+  - README.md` – This file
 
 ## Requirements
 
 - Python 3.9 or higher
-- Packages listed in `requirements.txt`
+- Packages listed in requirements.txt
 
 Install with pip:
-```bash
+bash
 pip install -r requirements.txt
 Or create a conda environment:
 
