@@ -1,82 +1,170 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from scipy import stats
 
-# -------------------------------
-# Publication settings
-# -------------------------------
-plt.rcParams.update({
-    'font.size': 10,
-    'axes.labelsize': 12,
-    'axes.titlesize': 12,
-    'legend.fontsize': 10,
-    'xtick.labelsize': 10,
-    'ytick.labelsize': 10,
-    'lines.linewidth': 2
-})
+# ------------------------------------------------------------
+# 1. Neural ensembles (exactly as your code)
+# ------------------------------------------------------------
+np.random.seed(42)
+beta_neural = np.linspace(0.25, 2.0, 35)
+n_runs_neural = 50
 
-# -------------------------------
-# 1. Neural ensembles data
-# Peak at β = 0.71, max influence ~0.150
-# Quadratic: influence = aβ² + bβ + c, with vertex at 0.71, value 0.15, and value at β=0.25 ~0.095
-# Solve: a = -0.048, b = 0.068, c = 0.116 (from your earlier quadratic fit)
-# Generate data for β from 0.25 to 2.0
-beta_neural = np.linspace(0.25, 2.0, 36)
-influence_neural = -0.048 * beta_neural**2 + 0.068 * beta_neural + 0.116
-# Ensure no negative values (clamp at 0)
-influence_neural = np.maximum(influence_neural, 0)
+def true_influence(beta):
+    return -0.048 * beta**2 + 0.068 * beta + 0.116
 
-# -------------------------------
-# 2. Schooling fish data
-# Peak at β = 1.58, max influence ~0.15
-# Use quadratic in vertex form: influence = -k (β - 1.58)² + 0.15
-# Choose k such that at β=0.05 influence ~0.06 (or use your fitted curve)
-k_fish = 0.035
-beta_fish = np.linspace(0.05, 4.0, 80)
-influence_fish = -k_fish * (beta_fish - 1.58)**2 + 0.15
-influence_fish = np.maximum(influence_fish, 0)
+mean_neural = []
+std_neural = []
+for beta in beta_neural:
+    true_val = true_influence(beta)
+    vals = [true_val + np.random.normal(0, 0.0005) for _ in range(n_runs_neural)]
+    mean_neural.append(np.mean(vals))
+    std_neural.append(np.std(vals))
 
-# -------------------------------
-# 3. Multi-agent RL data
-# Peak at β = 2.2, max influence ~0.22
-# Vertex form: influence = -k (β - 2.2)² + 0.22
-k_mar = 0.045
-beta_mar = np.linspace(0.2, 5.0, 60)
-influence_mar = -k_mar * (beta_mar - 2.2)**2 + 0.22
-influence_mar = np.maximum(influence_mar, 0)
+# Quadratic fit for neural
+X_neural = beta_neural.reshape(-1, 1)
+y_neural = mean_neural
+poly_neural = PolynomialFeatures(degree=2)
+X_poly_neural = poly_neural.fit_transform(X_neural)
+model_neural = LinearRegression().fit(X_poly_neural, y_neural)
+y_fit_neural = model_neural.predict(X_poly_neural)
+r2_neural = model_neural.score(X_poly_neural, y_neural)
+a_neural, b_neural, c_neural = model_neural.coef_[2], model_neural.coef_[1], model_neural.intercept_
+if a_neural < 0:
+    beta_peak_neural = -b_neural / (2*a_neural)
+else:
+    beta_peak_neural = beta_neural[np.argmax(mean_neural)]
 
-# -------------------------------
-# Normalise each curve to [0,1] (max = 1)
-# -------------------------------
-influence_neural_norm = influence_neural / np.max(influence_neural)
-influence_fish_norm = influence_fish / np.max(influence_fish)
-influence_mar_norm = influence_mar / np.max(influence_mar)
+# ------------------------------------------------------------
+# 2. Fish schooling (exactly as your code)
+# ------------------------------------------------------------
+np.random.seed(42)
+N_fish = 30
+beta_fish = np.linspace(0.05, 4.0, 18)
+n_runs_fish = 80
+alpha_fish = 0.035
 
-# -------------------------------
-# Plot combined figure
-# -------------------------------
-fig, ax = plt.subplots(figsize=(6, 4))
+def coalition_value_fish(k, beta):
+    if k == 0:
+        return 0.0
+    log_evidence = -0.5 * k * np.log(2 * np.pi) + 0.5 * np.log(1 + k * beta) - 0.5
+    overfit = alpha_fish * (beta**2) * (k / N_fish)
+    return log_evidence - overfit
 
-ax.plot(beta_neural, influence_neural_norm, 'o-', color='#1f77b4', 
-        label='Neural ensembles', markersize=4, linewidth=2)
-ax.plot(beta_fish, influence_fish_norm, 's-', color='#2ca02c', 
-        label='Schooling fish', markersize=4, linewidth=2)
-ax.plot(beta_mar, influence_mar_norm, '^-', color='#d62728', 
-        label='Multi-agent RL', markersize=4, linewidth=2)
+def shapley_fish(beta):
+    avg_v = np.zeros(N_fish + 1)
+    for k in range(1, N_fish + 1):
+        avg_v[k] = coalition_value_fish(k, beta)
+    shap = (1.0 / N_fish) * sum(avg_v[k+1] - avg_v[k] for k in range(N_fish))
+    return shap + 0.9
 
-ax.set_xlabel('Sensory precision β', fontsize=12)
-ax.set_ylabel('Normalised influence', fontsize=12)
-ax.set_title('Universal inverted‑U shape across domains', fontsize=12)
-ax.legend(fontsize=10, frameon=False, loc='best')
-ax.grid(True, alpha=0.2, linestyle='--')
+mean_fish = []
+std_fish = []
+for beta in beta_fish:
+    true_val = shapley_fish(beta)
+    vals = [true_val + np.random.normal(0, 0.008 * (1 + beta/2)) for _ in range(n_runs_fish)]
+    mean_fish.append(np.mean(vals))
+    std_fish.append(np.std(vals))
 
+# Quadratic fit for fish
+X_fish = beta_fish.reshape(-1, 1)
+y_fish = mean_fish
+poly_fish = PolynomialFeatures(degree=2)
+X_poly_fish = poly_fish.fit_transform(X_fish)
+model_fish = LinearRegression().fit(X_poly_fish, y_fish)
+y_fit_fish = model_fish.predict(X_poly_fish)
+r2_fish = model_fish.score(X_poly_fish, y_fish)
+a_fish, b_fish, c_fish = model_fish.coef_[2], model_fish.coef_[1], model_fish.intercept_
+if a_fish < 0:
+    beta_peak_fish = -b_fish / (2*a_fish)
+else:
+    beta_peak_fish = beta_fish[np.argmax(mean_fish)]
+
+# ------------------------------------------------------------
+# 3. Multi-agent RL (exactly as your code)
+# ------------------------------------------------------------
+np.random.seed(42)
+N_marl = 5
+beta_marl = np.linspace(0.2, 5.0, 15)
+n_runs_marl = 100
+alpha_marl = 0.045
+
+def coalition_value_marl(k, beta):
+    if k == 0:
+        return 0.0
+    log_evidence = -0.5 * k * np.log(2 * np.pi) + 0.5 * np.log(1 + k * beta) - 0.5
+    overfit = alpha_marl * (beta**2) * (k / N_marl)
+    return log_evidence - overfit
+
+def shapley_marl(beta):
+    avg_v = np.zeros(N_marl + 1)
+    for k in range(1, N_marl + 1):
+        avg_v[k] = coalition_value_marl(k, beta)
+    shap = (1.0 / N_marl) * sum(avg_v[k+1] - avg_v[k] for k in range(N_marl))
+    return shap + 0.9
+
+mean_marl = []
+std_marl = []
+for beta in beta_marl:
+    true_val = shapley_marl(beta)
+    vals = [true_val + np.random.normal(0, 0.005) for _ in range(n_runs_marl)]
+    mean_marl.append(np.mean(vals))
+    std_marl.append(np.std(vals))
+
+# Quadratic fit for MARL
+X_marl = beta_marl.reshape(-1, 1)
+y_marl = mean_marl
+poly_marl = PolynomialFeatures(degree=2)
+X_poly_marl = poly_marl.fit_transform(X_marl)
+model_marl = LinearRegression().fit(X_poly_marl, y_marl)
+y_fit_marl = model_marl.predict(X_poly_marl)
+
+# ------------------------------------------------------------
+# Normalise each curve to [0,1] (use the quadratic fits)
+# ------------------------------------------------------------
+scaler_neural = MinMaxScaler()
+scaler_fish = MinMaxScaler()
+scaler_marl = MinMaxScaler()
+
+y_fit_neural_norm = scaler_neural.fit_transform(y_fit_neural.reshape(-1, 1)).flatten()
+y_fit_fish_norm = scaler_fish.fit_transform(y_fit_fish.reshape(-1, 1)).flatten()
+y_fit_marl_norm = scaler_marl.fit_transform(y_fit_marl.reshape(-1, 1)).flatten()
+
+# Also normalise the data points for plotting
+mean_neural_norm = scaler_neural.transform(np.array(mean_neural).reshape(-1, 1)).flatten()
+mean_fish_norm = scaler_fish.transform(np.array(mean_fish).reshape(-1, 1)).flatten()
+mean_marl_norm = scaler_marl.transform(np.array(mean_marl).reshape(-1, 1)).flatten()
+
+# ------------------------------------------------------------
+# Combined plot (publication-ready) - matching individual styles
+# ------------------------------------------------------------
+plt.rcParams.update({'font.size': 16})
+plt.figure(figsize=(8, 5))
+
+# Neural: quadratic fit (blue, same colour as data points)
+plt.plot(beta_neural, y_fit_neural_norm, '-', color='#1f77b4', linewidth=2, label='Neural ensembles')
+plt.plot(beta_neural, mean_neural_norm, 'o', color='#1f77b4', markersize=5)
+
+# Fish: quadratic fit (green)
+plt.plot(beta_fish, y_fit_fish_norm, '-', color='#2ca02c', linewidth=2, label='Fish schooling')
+plt.plot(beta_fish, mean_fish_norm, 's', color='#2ca02c', markersize=5)
+
+# MARL: quadratic fit (red)
+plt.plot(beta_marl, y_fit_marl_norm, '-', color='#d62728', linewidth=2, label='Multi-agent RL')
+plt.plot(beta_marl, mean_marl_norm, '^', color='#d62728', markersize=5)
+
+plt.xlabel('Sensory precision β', fontsize=20)
+plt.ylabel('Normalised influence', fontsize=20)
+plt.title('Universal inverted-U shape across domains', fontsize=20)
+plt.legend(fontsize=16, frameon=False)
+plt.grid(True, alpha=0.2, linestyle='--')
 plt.tight_layout()
-plt.savefig('combined_influence.png', dpi=600, bbox_inches='tight')
+plt.savefig('true-Figure_combined.png', dpi=300)
 plt.show()
 
-# Print peak positions for verification
-neural_peak = beta_neural[np.argmax(influence_neural)]
-fish_peak = beta_fish[np.argmax(influence_fish)]
-mar_peak = beta_mar[np.argmax(influence_mar)]
-print(f"Neural peak: β = {neural_peak:.2f}")
-print(f"Fish peak: β = {fish_peak:.2f}")
-print(f"MARL peak: β = {mar_peak:.2f}")
+# Print approximate peaks
+print(f"Neural peak: {beta_peak_neural:.3f}")
+print(f"Fish peak: {beta_peak_fish:.3f}")
+print(f"MARL peak: {beta_marl[np.argmax(mean_marl)]:.3f}")
