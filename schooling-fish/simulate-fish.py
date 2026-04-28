@@ -105,6 +105,3 @@ plt.grid(True, alpha=0.2, linestyle='--')
 plt.tight_layout()
 plt.savefig('fish_influence.png', dpi=300)
 plt.show()
-
-plt.savefig('fish_influence.png', dpi=600, bbox_inches='tight')
-plt.show()
